@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using UnityEditor;
-using UnityEditor.Experimental.AssetImporters;
+
 using UnityEngine;
 using Util.Math;
 using Util.Geometry;
@@ -14,8 +14,8 @@ using ConvexHull;
 using Util.Geometry.Polygon;
 using General.Model;
 
-[ScriptedImporter(1, "ipe")]
-public class LoadLevelEditor : ScriptedImporter
+[UnityEditor.AssetImporters.ScriptedImporter(1, "ipe")]
+public class LoadLevelEditor : UnityEditor.AssetImporters.ScriptedImporter
 {
     private readonly float agSIZE = 9f;
     private readonly float ktSIZE = 6f;
@@ -26,7 +26,7 @@ public class LoadLevelEditor : ScriptedImporter
     /// Currently used for importing levels into 
     /// </summary>
     /// <param name="ctx"></param>
-    public override void OnImportAsset(AssetImportContext ctx)
+    public override void OnImportAsset(UnityEditor.AssetImporters.AssetImportContext ctx)
     {
         var path = ctx.assetPath;
         var name = Path.GetFileNameWithoutExtension(path);
