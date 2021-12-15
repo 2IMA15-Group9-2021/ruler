@@ -35,7 +35,7 @@ namespace Stealth
             {
                 _fieldOfViewDegrees = value;
                 FieldOfView = Mathf.Deg2Rad * value;
-            }
+            } 
         }
 
         /// <summary>
