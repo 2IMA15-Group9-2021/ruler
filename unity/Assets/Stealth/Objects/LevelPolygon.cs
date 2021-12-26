@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Util.Algorithms.Triangulation;
+using Util.Geometry;
 using Util.Geometry.Polygon;
 using Util.Geometry.Triangulation;
 
@@ -58,12 +59,13 @@ namespace Stealth
             public float VertexGizmoRadius;
         }
 
+        public Polygon2DWithHoles TotalPolygon { get; private set; }
+
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
 
         private Mesh outsideMesh;
         private Mesh[] holesMesh;
-        private Polygon2DWithHoles levelPolygon;
 
         private void Awake()
         {
@@ -89,10 +91,10 @@ namespace Stealth
             Polygon2D[] holesPolygon = holesBoundary.Select(hole => new Polygon2D(hole.Vertices)).ToArray();
 
             // Create polygon for level
-            levelPolygon = new Polygon2DWithHoles(outsidePolygon, holesPolygon);
+            TotalPolygon = new Polygon2DWithHoles(outsidePolygon, holesPolygon);
 
             // Create meshes for outside and holes
-            outsideMesh = Triangulator.Triangulate(levelPolygon.Outside, false).CreateMesh();
+            outsideMesh = Triangulator.Triangulate(TotalPolygon.Outside, false).CreateMesh();
             outsideMesh.RecalculateNormals();
             holesMesh = holesPolygon.Select(hole => Triangulator.Triangulate(hole, false).CreateMesh()).ToArray();
             foreach (Mesh hole in holesMesh)
