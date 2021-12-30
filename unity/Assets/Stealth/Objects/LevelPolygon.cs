@@ -1,14 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 using Util.Algorithms.Triangulation;
-using Util.Geometry;
 using Util.Geometry.Polygon;
-using Util.Geometry.Triangulation;
 
-namespace Stealth
+namespace Stealth.Objects
 {
     /// <summary>
     /// Represents the level polygon.

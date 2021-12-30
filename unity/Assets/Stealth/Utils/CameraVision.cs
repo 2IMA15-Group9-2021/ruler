@@ -1,13 +1,12 @@
-﻿using Assets.Stealth.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Stealth.Objects;
 using UnityEngine;
-using Util.DataStructures.BST;
 using Util.Geometry;
 using Util.Geometry.Polygon;
 
-namespace Stealth
+namespace Stealth.Utils
 {
     /// <summary>
     /// This class computes the polygon representing the area observed by a <see cref="GalleryCamera"/>.

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
 
-namespace Stealth
+namespace Stealth.Objects
 {
     public class LevelPolygonHole : MonoBehaviour
     {

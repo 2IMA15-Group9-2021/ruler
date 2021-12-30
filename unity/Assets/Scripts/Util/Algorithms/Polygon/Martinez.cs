@@ -225,7 +225,7 @@ namespace Util.Algorithms.Polygon
             list.Add(event2);
         }
 
-        private void HandleEvent(IBST<SweepEvent> events, IBST<StatusItem> status, SweepEvent ev)
+        private new void HandleEvent(IBST<SweepEvent> events, IBST<StatusItem> status, SweepEvent ev)
         {
             ResultEvents.Add(ev);
 

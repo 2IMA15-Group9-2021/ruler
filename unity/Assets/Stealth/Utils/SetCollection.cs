@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using Util.DataStructures.BST;
 
-namespace Assets.Stealth.Utils
+namespace Stealth.Utils
 {
     public class SetCollection<T> : IBST<T>
         where T : IComparable<T>, IEquatable<T>

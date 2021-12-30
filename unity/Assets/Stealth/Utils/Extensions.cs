@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Util.Geometry;
 using Util.Geometry.Polygon;
-using Util.Math;
 
-namespace Stealth
+namespace Stealth.Utils
 {
     public static class Extensions
     {

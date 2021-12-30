@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Stealth.Utils;
 using UnityEngine;
 using Util.Algorithms.Triangulation;
 using Util.Geometry;
-using Util.Geometry.Polygon;
-using static Stealth.CameraVision;
 
-namespace Stealth
+namespace Stealth.Objects
 {
     /// <summary>
     /// A camera in the game world.

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using Util.Geometry;
 
-namespace Stealth
+namespace Stealth.Utils
 {
     public class Endpoint : IComparable<Endpoint>, IEquatable<Endpoint>
     {

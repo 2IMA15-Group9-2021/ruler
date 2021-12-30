@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Stealth.Objects;
 using UnityEditor;
 using UnityEngine;
 
