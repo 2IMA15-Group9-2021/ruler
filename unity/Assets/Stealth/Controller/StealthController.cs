@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using General.Menu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Util.Geometry.Polygon;
 
 namespace Stealth.Controller
 {
@@ -31,6 +33,14 @@ namespace Stealth.Controller
 
         //stores the number of deactivated cameras
         private int m_deactivatedCameras = 0;
+        
+        public static List<String> cameraNames = new List<String>();
+        public static List<Polygon2D> cameraPolygons = new List<Polygon2D>();
+        public static List<Boolean> playerVisibility = new List<Boolean>();
+        public static Boolean cameraVisionChanged=false;
+
+        [SerializeField]
+        private GameObject player;
 
         /// <summary>
         /// Initializes the level and starts gameplay.
@@ -57,6 +67,43 @@ namespace Stealth.Controller
         private void Update()
         {
             UpdateTimeText();
+            
+            if (player.transform.hasChanged || cameraVisionChanged)
+            {
+                int count = 0;
+                foreach (var polygon in cameraPolygons)
+                {
+                    if (IsPlayerInPolygon(polygon))
+                        count++;
+                }
+                Debug.Log(count + "cameras are currently seeing the player");
+                
+                cameraVisionChanged = false;
+                player.transform.hasChanged = false;
+            }
+        }
+        
+        bool IsPlayerInPolygon(Polygon2D polygon)
+        {
+            List<Vector2> vertices = new List<Vector2>();
+            foreach (var x in polygon.Vertices)
+            {
+                vertices.Add(x);
+            }
+            var position = player.transform.position;
+            
+            int i, j;
+            bool result=false;
+            for (i = 0, j = vertices.Count-1; i < vertices.Count; j = i++)
+            {
+                if (((vertices[i].y >= position.y) != (vertices[j].y >= position.y)) &&
+                    (position.x <=
+                     (vertices[j].x - vertices[i].x) * (position.y - vertices[i].y) / (vertices[j].y - vertices[i].y) +
+                     vertices[i].x))
+                    result = !result;
+            }
+            
+            return result;
         }
 
         /// <summary>
