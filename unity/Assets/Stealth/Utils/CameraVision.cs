@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Stealth.Controller;
 using Stealth.Objects;
 using UnityEngine;
 using Util.Geometry;
@@ -317,6 +318,20 @@ namespace Stealth.Utils
             intersections = FindIntersections(sweepLine, level, camera.transform);
             result.AddVertex(intersections[0].Item2);
 
+            if (StealthController.cameraNames.Contains(camera.name))
+            {
+                StealthController.cameraPolygons[StealthController.cameraNames.IndexOf(camera.name)] = result;
+            }
+            else
+            {
+                Debug.Log("not here");
+                StealthController.cameraNames.Add(camera.name);
+                StealthController.cameraPolygons.Add(result);
+                StealthController.playerVisibility.Add(false);
+            }
+
+            StealthController.cameraVisionChanged = true;
+            
             // Return polygon in local space of camera transform
             return inLocalSpace ? result.ToLocalSpace(camera.transform) : result;
         }
