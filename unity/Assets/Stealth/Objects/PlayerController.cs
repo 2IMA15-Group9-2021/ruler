@@ -16,15 +16,6 @@ namespace Stealth.Objects
 
         private Rigidbody2D body;
 
-        /// <summary>
-        /// Checks if the player object intersects with the outside boundary of the level or one of the holes
-        /// </summary>
-        /// <returns>True if the player object can move in the given direction, False otherwise</returns>
-        private bool checkValidMove()
-        {
-            return true;
-        }
-
         private void Awake()
         {
             body = GetComponent<Rigidbody2D>();

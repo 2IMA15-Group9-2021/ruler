@@ -27,7 +27,6 @@ namespace Stealth.Objects
         private Mesh visionMesh;
         private LevelPolygon level;
 
-        private CameraStatus status;
         private float oldFieldOfViewDegrees;
 
         /// <summary>
