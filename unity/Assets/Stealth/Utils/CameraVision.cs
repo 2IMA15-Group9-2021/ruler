@@ -47,7 +47,7 @@ namespace Stealth.Utils
         /// <summary>
         /// Small value we use to avoid rounding-errors when computing the events.
         /// </summary>
-        private float EPSILON = 0.2f;
+        private float EPSILON = 1.0f;
 
         /// <summary>
         /// This class compares two <see cref="LineSegment"/>s by their distance
@@ -138,6 +138,20 @@ namespace Stealth.Utils
                     return null;
                 }
                 return list.Last.Value;
+            }
+
+            public bool Contains(LineSegment segment)
+            {
+                var node = list.First;
+                while (node != null)
+                {
+                    if (node.Value == segment)
+                    {
+                        return true;
+                    }
+                    node = node.Next;
+                }
+                return false;
             }
 
             public void Insert(LineSegment segment)
@@ -287,7 +301,8 @@ namespace Stealth.Utils
         public Polygon2D Compute(bool inLocalSpace = true)
         {
             result = new Polygon2D();
-            result.AddVertex(camera.transform.position);
+            Vector2 viewpoint = camera.transform.position;
+            result.AddVertex(viewpoint);
 
             // Initialize the event queue
             List<Endpoint> endpoints = CreateEndpoints(level, camera);
@@ -310,6 +325,20 @@ namespace Stealth.Utils
                 // Ignore intersections with endpoints
                 if (segment.IsEndpoint(point))
                 {
+                    // Check if the endpoint is a "begin" endpoint
+                    // if so, it will block whatever segment is
+                    // behind it
+                    if (!insertedSegment)
+                    {
+                        // Find the other endpoint
+                        Vector2 other = (point == segment.Point1) ? segment.Point2 : segment.Point1;
+                        // Calculate difference in angle
+                        float angleDiff = GetCounterClockwiseAngle(viewpoint, sweepLine, other, true) - GetCounterClockwiseAngle(viewpoint, sweepLine, point, true);
+                        if (angleDiff > 0)
+                        {
+                            insertedSegment = true;
+                        }
+                    }
                     continue;
                 }
 
@@ -321,7 +350,7 @@ namespace Stealth.Utils
                 }
 
                 // Add segment into status
-                intersectedSegments.Insert(segment);
+                InsertIntoStatus(segment);
             }
 
             // Handle all events
@@ -356,20 +385,23 @@ namespace Stealth.Utils
 
             if (e.IsBegin) // The endpoint starts a segment
             {
-                // Insert segment into status
-                intersectedSegments.Insert(e.Segment);
+                // Insert segment into status, if it is not already in
+                InsertIntoStatus(e.Segment);
 
                 // If the inserted segment is in front of the old
                 // insert a vertex at the intersection with the old
                 LineSegment newFront = intersectedSegments.FindMin();
-                // We can assume there are always segments in the status
-                // as the camera lies in a bounded polygon
-                // (i.e. oldFront should never be null)
+                // We might have no segments in the status at the start,
+                // if the sweep line started by intersecting one of the outer
+                // boundary's vertices, simply add the current vertex
                 if (oldFront == null)
                 {
-                    throw new GeomException($"{nameof(intersectedSegments)} is empty. This should not happen.");
+                    if (e.Vertex != result.Vertices.Last())
+                    {
+                        result.AddVertex(e.Vertex);
+                    }
                 }
-                if (oldFront != newFront)
+                else if (oldFront != newFront)
                 {
                     Vector2? intersection = oldFront.Intersect(sweepLine);
                     if (!intersection.HasValue)
@@ -407,6 +439,16 @@ namespace Stealth.Utils
                     }
                 }
             }
+        }
+
+        private bool InsertIntoStatus(LineSegment segment)
+        {
+            if (intersectedSegments.Contains(segment))
+            {
+                return false;
+            }
+            intersectedSegments.Insert(segment);
+            return true;
         }
     }
 }
