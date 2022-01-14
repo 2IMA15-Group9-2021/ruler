@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Util.Algorithms.Triangulation;
@@ -62,10 +63,14 @@ namespace Stealth.Objects
         private Mesh outsideMesh;
         private Mesh[] holesMesh;
 
+        private EdgeCollider2D collider;
+
         private void Awake()
         {
             meshFilter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
+
+            collider = GetComponent<EdgeCollider2D>();
 
             meshRenderer.enabled = true;
         }
@@ -92,6 +97,11 @@ namespace Stealth.Objects
             outsideMesh = Triangulator.Triangulate(TotalPolygon.Outside, false).CreateMesh();
             outsideMesh.RecalculateNormals();
             holesMesh = holesPolygon.Select(hole => Triangulator.Triangulate(hole, false).CreateMesh()).ToArray();
+
+            List<Vector2> points = outsideVertices.ToList();
+            points.Add(outsideVertices[0]);
+            collider.points = points.ToArray();
+
             foreach (Mesh hole in holesMesh)
             {
                 hole.RecalculateNormals();

@@ -27,6 +27,8 @@ namespace Stealth.Objects
         private Mesh visionMesh;
         private LevelPolygon level;
 
+        private float oldFieldOfViewDegrees;
+
         /// <summary>
         /// The field of view of the camera, expressed in degrees.
         /// </summary>
@@ -98,20 +100,20 @@ namespace Stealth.Objects
             meshFilter.mesh = visionMesh;
         }
 
-        //private void Start()
-        //{
-        //    status = new CameraStatus();
-        //    status.setProps(transform.position, transform.rotation, FieldOfViewDegrees);
-        //}
+        private void Start()
+        {
+            oldFieldOfViewDegrees = FieldOfViewDegrees;
+        }
 
-        //private void Update()
-        //{
-        //    if (!status.compareStatus(transform.position, transform.rotation, FieldOfViewDegrees))
-        //    {
-        //        CalculateVisionPolygon();
-        //        status.setProps(transform.position, transform.rotation, FieldOfViewDegrees);
-        //    }
-        //}
+        private void Update()
+        {
+            if (transform.hasChanged || FieldOfViewDegrees!=oldFieldOfViewDegrees)
+            {
+                CalculateVisionPolygon();
+                transform.hasChanged = false;
+                oldFieldOfViewDegrees = FieldOfViewDegrees;
+            }
+        }
 
 
         /// <summary>
