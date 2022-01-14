@@ -38,8 +38,20 @@ namespace Stealth.Utils
         /// </summary>
         private Queue<Endpoint> eventQueue;
 
+        /// <summary>
+        /// Structure storing the segments currently being intersected.
+        /// </summary>
         private StatusStructure intersectedSegments;
 
+        /// <summary>
+        /// Small value we use to avoid rounding-errors when computing the events.
+        /// </summary>
+        private float EPSILON = 0.2f;
+
+        /// <summary>
+        /// This class compares two <see cref="LineSegment"/>s by their distance
+        /// to the camera along the sweep line.
+        /// </summary>
         private class SegmentComparer : IComparer<LineSegment>
         {
             private Vector2 viewpoint;
@@ -147,10 +159,6 @@ namespace Stealth.Utils
             public bool Delete(LineSegment segment)
             {
                 bool result = list.Remove(segment);
-                if (!result)
-                {
-                    Debug.Log($"Failed to delete {segment}");
-                }
                 return result;
             }
         }
@@ -176,7 +184,9 @@ namespace Stealth.Utils
             Vector2 viewpointToVertex = vertex - viewpoint;
 
             float angle = Vector2.SignedAngle(boundary, viewpointToVertex);
-            return shortest || angle > 0 ? angle : 360 + angle;
+            // If the angle is only slightly negative we treat it as a rounding error
+            if (-EPSILON < angle && angle < 0) angle = 0;
+            return shortest || angle >= 0 ? angle : 360 + angle;
         }
 
         private List<Endpoint> CreateEndpoints(Polygon2DWithHoles polygon, GalleryCamera camera)
@@ -281,7 +291,7 @@ namespace Stealth.Utils
             // Initialize the event queue
             List<Endpoint> endpoints = CreateEndpoints(level, camera);
             // Filter endpoints that fall outside vision cone
-            endpoints = endpoints.Where(e => e.AngleToViewpoint <= camera.FieldOfViewDegrees).ToList();
+            endpoints = endpoints.Where(e => e.AngleToViewpoint <= camera.FieldOfViewDegrees + EPSILON).ToList();
             // Create queue from list
             eventQueue = new Queue<Endpoint>(endpoints);
 
@@ -290,15 +300,23 @@ namespace Stealth.Utils
             sweepLine = camera.GetRightBoundary();
 
             List<Tuple<LineSegment, Vector2>> intersections = FindIntersections(sweepLine, level, camera.transform);
+            bool insertedSegment = false;
             for (int i = 0; i < intersections.Count; i++)
             {
                 LineSegment segment = intersections[i].Item1;
                 Vector2 point = intersections[i].Item2;
 
-                if (i == 0)
+                // Ignore intersections with endpoints
+                if (segment.IsEndpoint(point))
                 {
-                    // Insert point into result
+                    continue;
+                }
+
+                if (!insertedSegment)
+                {
+                    // Insert the first intersection that isn't an endpoint into the polygon
                     result.AddVertex(point);
+                    insertedSegment = true;
                 }
 
                 // Add segment into status
@@ -312,12 +330,18 @@ namespace Stealth.Utils
                 HandleEvent(e);
             }
 
-            // Find closest intersection and add vertex for it
+            // Find closest intersection and add vertex for it, if it is not an endpoint
             sweepLine = camera.GetLeftBoundary();
             intersections = FindIntersections(sweepLine, level, camera.transform);
-            result.AddVertex(intersections[0].Item2);
+            if (intersections.Count > 0)
+            {
+                if (!intersections[0].Item1.IsEndpoint(intersections[0].Item2))
+                {
+                    result.AddVertex(intersections[0].Item2);
+                }
+            }
 
-            // Return polygon in local space of camera transform
+            // Return polygon in local space of camera transform, if necessary
             return inLocalSpace ? result.ToLocalSpace(camera.transform) : result;
         }
 
@@ -337,6 +361,13 @@ namespace Stealth.Utils
                 // If the inserted segment is in front of the old
                 // insert a vertex at the intersection with the old
                 LineSegment newFront = intersectedSegments.FindMin();
+                // We can assume there are always segments in the status
+                // as the camera lies in a bounded polygon
+                // (i.e. oldFront should never be null)
+                if (oldFront == null)
+                {
+                    throw new GeomException($"{nameof(intersectedSegments)} is empty. This should not happen.");
+                }
                 if (oldFront != newFront)
                 {
                     Vector2? intersection = oldFront.Intersect(sweepLine);

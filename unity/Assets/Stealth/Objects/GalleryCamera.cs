@@ -27,8 +27,6 @@ namespace Stealth.Objects
         private Mesh visionMesh;
         private LevelPolygon level;
 
-        private CameraStatus status;
-
         /// <summary>
         /// The field of view of the camera, expressed in degrees.
         /// </summary>
@@ -100,20 +98,20 @@ namespace Stealth.Objects
             meshFilter.mesh = visionMesh;
         }
 
-        private void Start()
-        {
-            status = new CameraStatus();
-            status.setProps(transform.position, transform.rotation, FieldOfViewDegrees);
-        }
+        //private void Start()
+        //{
+        //    status = new CameraStatus();
+        //    status.setProps(transform.position, transform.rotation, FieldOfViewDegrees);
+        //}
 
-        private void Update()
-        {
-            if (!status.compareStatus(transform.position, transform.rotation, FieldOfViewDegrees))
-            {
-                CalculateVisionPolygon();
-                status.setProps(transform.position, transform.rotation, FieldOfViewDegrees);
-            }
-        }
+        //private void Update()
+        //{
+        //    if (!status.compareStatus(transform.position, transform.rotation, FieldOfViewDegrees))
+        //    {
+        //        CalculateVisionPolygon();
+        //        status.setProps(transform.position, transform.rotation, FieldOfViewDegrees);
+        //    }
+        //}
 
 
         /// <summary>
@@ -126,32 +124,6 @@ namespace Stealth.Objects
             Quaternion rot2 = Quaternion.Euler(0, 0, 0.5f * FieldOfViewDegrees);
             Gizmos.DrawRay(transform.position, rot1 * transform.right * gizmoLength);
             Gizmos.DrawRay(transform.position, rot2 * transform.right * gizmoLength);
-        }
-
-        private class CameraStatus
-        {
-            private Vector3 position;
-            private Quaternion rotation;
-            private float fieldOfView;
-
-            public void setProps(Vector3 pos, Quaternion rot, float fov)
-            {
-                position = pos;
-                rotation = rot;
-                fieldOfView = fov;
-            }
-
-            /// <summary>
-            /// Compares the currently stored values to the given parameter values.
-            /// </summary>
-            /// <param name="pos"></param> Vector3 representing the position of the camera
-            /// <param name="rot"></param> Vector3 representing the rotation of the camera
-            /// <param name="fov"></param> value for the field of view
-            /// <returns>True if the input values are equal to their respective properties, False otherwise.</returns>
-            public bool compareStatus(Vector3 pos, Quaternion rot, float fov)
-            {
-                return (position == pos && rotation == rot && fieldOfView == fov);
-            }
         }
     }
 }
