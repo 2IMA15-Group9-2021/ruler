@@ -29,6 +29,11 @@ namespace Stealth.Objects
 
         private float oldFieldOfViewDegrees;
 
+        [SerializeField]
+        public bool disabled = false;
+
+        private CameraVision vision;
+
         /// <summary>
         /// The field of view of the camera, expressed in degrees.
         /// </summary>
@@ -61,6 +66,7 @@ namespace Stealth.Objects
             level = FindObjectOfType<LevelPolygon>();
             meshFilter = GetComponent<MeshFilter>();
             visionMesh = new Mesh();
+            meshFilter = GetComponentInChildren<MeshFilter>();
         }
 
         /// <summary>
@@ -92,8 +98,8 @@ namespace Stealth.Objects
                 return;
             }
 
-            var cameraVision = new CameraVision(this, level);
-            var polygon = cameraVision.Compute();
+            vision = new CameraVision(this, level);
+            var polygon = vision.Compute();
 
             visionMesh = Triangulator.Triangulate(polygon).CreateMesh();
             visionMesh.RecalculateNormals();
@@ -113,6 +119,15 @@ namespace Stealth.Objects
                 transform.hasChanged = false;
                 oldFieldOfViewDegrees = FieldOfViewDegrees;
             }
+        }
+
+        /// <summary>
+        /// Toggles this camera from enabled to disabled
+        /// </summary>
+        private void OnMouseDown()
+        {
+            transform.GetChild(0).gameObject.SetActive(disabled);
+            disabled = !disabled;
         }
 
 
