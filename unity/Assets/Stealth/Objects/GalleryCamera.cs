@@ -28,7 +28,7 @@ namespace Stealth.Objects
         private MeshFilter meshFilter;
         private Mesh visionMesh;
         public Polygon2D visionPoly;
-        private LevelPolygon level;
+        private LevelIsland level;
 
         private float oldFieldOfViewDegrees;
 
@@ -66,7 +66,7 @@ namespace Stealth.Objects
 
         private void Awake()
         {
-            level = FindObjectOfType<LevelPolygon>();
+            level = FindObjectOfType<LevelIsland>();
             visionMesh = new Mesh();
             meshFilter = GetComponentInChildren<MeshFilter>();
         }

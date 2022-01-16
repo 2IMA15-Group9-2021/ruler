@@ -26,7 +26,7 @@ namespace Stealth.Objects
         {
             float horizontalInput = Input.GetAxis("Horizontal");
             float verticalInput = Input.GetAxis("Vertical");
-            body.MovePosition(body.position + new Vector2(horizontalInput, verticalInput) * moveSpeed * Time.fixedDeltaTime);
+            body.MovePosition(body.position + new Vector2(horizontalInput, verticalInput) * moveSpeed * Time.deltaTime);
         }
     }
 }

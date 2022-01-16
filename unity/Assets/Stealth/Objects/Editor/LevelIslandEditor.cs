@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace Stealth
 {
-    [CustomEditor(typeof(LevelPolygon))]
-    public class LevelPolygonEditor : Editor
+    [CustomEditor(typeof(LevelIsland))]
+    public class LevelIslandEditor : Editor
     {
         protected virtual void OnSceneGUI()
         {
-            LevelPolygon level = (LevelPolygon)target;
+            LevelIsland level = (LevelIsland)target;
 
             for (int i = 0; i < level.OutsideVertices.Length; i++)
             {
@@ -32,7 +32,7 @@ namespace Stealth
 
             for (int i = 0; i < level.HolesBoundary.Length; i++)
             {
-                LevelPolygon.HoleBoundary hole = level.HolesBoundary[i];
+                LevelIsland.HoleBoundary hole = level.HolesBoundary[i];
                 Vector2[] vertices = hole.Vertices;
                 for (int j = 0; j < vertices.Length; j++)
                 {

@@ -10,10 +10,18 @@ namespace Stealth.Objects
     /// Represents the level polygon.
     /// </summary>
     [RequireComponent(typeof(MeshFilter))]
-    public class LevelPolygon : MonoBehaviour
+    [RequireComponent(typeof(MeshRenderer))]
+    [RequireComponent(typeof(EdgeCollider2D))]
+    public class LevelIsland : MonoBehaviour
     {   
         [SerializeField]
-        private Vector2[] outsideVertices;
+        private Vector2[] outsideVertices = new Vector2[]
+        {
+            new Vector2(-0.5f, -0.5f),
+            new Vector2( 0.5f, -0.5f),
+            new Vector2( 0.5f,  0.5f),
+            new Vector2(-0.5f,  0.5f),
+        };
 
         public Vector2[] OutsideVertices
         {
@@ -22,7 +30,7 @@ namespace Stealth.Objects
         }
 
         [SerializeField]
-        private HoleBoundary[] holesBoundary;
+        private HoleBoundary[] holesBoundary = new HoleBoundary[] { };
 
         public HoleBoundary[] HolesBoundary
         {
@@ -37,7 +45,7 @@ namespace Stealth.Objects
         }
 
         [SerializeField]
-        private LevelPolygonHole holePrefab;
+        private LevelIslandHole holePrefab;
 
         [SerializeField]
         private DebugSettings debugSettings = new DebugSettings()
@@ -55,7 +63,7 @@ namespace Stealth.Objects
             public float VertexGizmoRadius;
         }
 
-        public Polygon2DWithHoles TotalPolygon { get; private set; }
+        public Polygon2DWithHoles Polygon { get; private set; }
 
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
@@ -83,29 +91,38 @@ namespace Stealth.Objects
         [ContextMenu("Update mesh")]
         public void UpdateMesh()
         {
+            // We might be in edit mode, so retrieve any components we don't have a reference to
             if (meshFilter == null) meshFilter = GetComponent<MeshFilter>();
             if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
+            if (edgeCollider == null) edgeCollider = GetComponent<EdgeCollider2D>();
 
             // Create polygons for outside boundary and holes
             Polygon2D outsidePolygon = new Polygon2D(outsideVertices);
             Polygon2D[] holesPolygon = holesBoundary.Select(hole => new Polygon2D(hole.Vertices)).ToArray();
 
             // Create polygon for level
-            TotalPolygon = new Polygon2DWithHoles(outsidePolygon, holesPolygon);
+            Polygon = new Polygon2DWithHoles(outsidePolygon, holesPolygon);
 
             // Create meshes for outside and holes
-            outsideMesh = Triangulator.Triangulate(TotalPolygon.Outside, false).CreateMesh();
+            outsideMesh = Triangulator.Triangulate(Polygon.Outside, false).CreateMesh();
             outsideMesh.RecalculateNormals();
+
             holesMesh = holesPolygon.Select(hole => Triangulator.Triangulate(hole, false).CreateMesh()).ToArray();
-
-            List<Vector2> points = outsideVertices.ToList();
-            points.Add(outsideVertices[0]);
-            edgeCollider.points = points.ToArray();
-
             foreach (Mesh hole in holesMesh)
             {
                 hole.RecalculateNormals();
             }
+
+            List<Vector2> points = outsideVertices.ToList();
+            points.Add(outsideVertices[0]);
+
+            Vector2[] colliderPoints = new Vector2[outsideVertices.Length + 1];
+            for (int i = 0; i < outsideVertices.Length; i++)
+            {
+                colliderPoints[i] = outsideVertices[i];
+            }
+            colliderPoints[colliderPoints.Length - 1] = outsideVertices[0];
+            edgeCollider.points = colliderPoints;
 
             // Update mesh filters if we're in play mode
             if (Application.isPlaying)
@@ -124,14 +141,14 @@ namespace Stealth.Objects
                 for (int i = 0; i < holesMesh.Length; i++)
                 {
                     // Instantiate as child of self
-                    LevelPolygonHole instance = Instantiate(holePrefab, transform);
+                    LevelIslandHole instance = Instantiate(holePrefab, transform);
                     instance.gameObject.SetActive(true);
-                    instance.UpdateMesh(holesMesh[i]);
+                    instance.UpdateMesh(holesPolygon[i], holesMesh[i]);
                 }
             }
             else
             {
-                // If we're in edit mode, disable the mesh renderer
+                // If we're in edit mode, disable the mesh renderer,
                 // we'll draw the meshes using gizmos
                 meshRenderer.enabled = false;
             }
@@ -142,16 +159,44 @@ namespace Stealth.Objects
             if (!Application.isPlaying)
             {
                 // Check that no two consecutive vertices have the same coordinates
-                for (int i = 0; i < outsideVertices.Length; i++)
+                for (int i = 0; i + 1 < outsideVertices.Length; i++)
                 {
-                    if (i == outsideVertices.Length - 1) break;
-
                     if (Vector2.Distance(outsideVertices[i], outsideVertices[i + 1]) < Mathf.Epsilon)
                     {
-                        // Move the second vertex slightly
-                        Vector2 vertex = outsideVertices[i + 1];
-                        vertex.x += 1;
-                        outsideVertices[i + 1] = vertex;
+                        // Move the second vertex inbetween the previous and next vertex
+                        Vector2 prev = outsideVertices[i];
+                        Vector2 next = (i + 2 < outsideVertices.Length) ? outsideVertices[i + 2] : outsideVertices[0];
+
+                        outsideVertices[i + 1] = Vector2.Lerp(prev, next, 0.5f);
+                    }
+                }
+                foreach (HoleBoundary hole in holesBoundary)
+                {
+                    if (hole.Vertices.Length == 0)
+                    {
+                        // Add some default vertices
+                        hole.Vertices = new Vector2[]
+                        {
+                            new Vector2(-0.25f, -0.25f),
+                            new Vector2( 0.25f, -0.25f),
+                            new Vector2( 0.25f,  0.25f),
+                            new Vector2(-0.25f,  0.25f),
+                        };
+                    }
+                    else
+                    {
+                        // Check that no two consecutive vertices have the same coordinates
+                        for (int i = 0; i + 1 < hole.Vertices.Length; i++)
+                        {
+                            if (Vector2.Distance(hole.Vertices[i], hole.Vertices[i + 1]) < Mathf.Epsilon)
+                            {
+                                // Move the second vertex inbetween the previous and next vertex
+                                Vector2 prev = hole.Vertices[i];
+                                Vector2 next = (i + 2 < hole.Vertices.Length) ? hole.Vertices[i + 2] : hole.Vertices[0];
+
+                                hole.Vertices[i + 1] = Vector2.Lerp(prev, next, 0.5f);
+                            }
+                        }
                     }
                 }
                 UpdateMesh();
@@ -160,9 +205,12 @@ namespace Stealth.Objects
 
         private void OnDrawGizmos()
         {
-            // Draw vertices of outside boundary
-            Gizmos.color = debugSettings.OutsideColor;
-            Gizmos.DrawMesh(outsideMesh, transform.position);
+            if (outsideMesh != null)
+            {
+                // Draw vertices of outside boundary
+                Gizmos.color = debugSettings.OutsideColor;
+                Gizmos.DrawMesh(outsideMesh, transform.position);
+            }
 
             // Draw edges of holes
             Gizmos.color = debugSettings.HolesColor;

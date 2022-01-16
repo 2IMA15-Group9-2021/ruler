@@ -183,10 +183,10 @@ namespace Stealth.Utils
         /// </summary>
         /// <param name="camera">The camera to compute the vision for.</param>
         /// <param name="level">The level the camera is placed in.</param>
-        public CameraVision(GalleryCamera camera, LevelPolygon level)
+        public CameraVision(GalleryCamera camera, LevelIsland level)
         {
             this.camera = camera;
-            this.level = level.TotalPolygon;
+            this.level = level.Polygon;
 
             intersectedSegments = new StatusStructure(
                 new SegmentComparer(camera.transform.position));
