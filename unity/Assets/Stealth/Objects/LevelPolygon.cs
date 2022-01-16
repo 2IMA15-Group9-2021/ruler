@@ -63,14 +63,14 @@ namespace Stealth.Objects
         private Mesh outsideMesh;
         private Mesh[] holesMesh;
 
-        private EdgeCollider2D collider;
+        private EdgeCollider2D edgeCollider;
 
         private void Awake()
         {
             meshFilter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
 
-            collider = GetComponent<EdgeCollider2D>();
+            edgeCollider = GetComponent<EdgeCollider2D>();
 
             meshRenderer.enabled = true;
         }
@@ -100,7 +100,7 @@ namespace Stealth.Objects
 
             List<Vector2> points = outsideVertices.ToList();
             points.Add(outsideVertices[0]);
-            collider.points = points.ToArray();
+            edgeCollider.points = points.ToArray();
 
             foreach (Mesh hole in holesMesh)
             {
