@@ -2,6 +2,8 @@
 using UnityEngine;
 using Stealth.Objects;
 using UnityEditor;
+using UnityEngine.UI;
+using System;
 
 namespace Stealth
 {
@@ -10,11 +12,37 @@ namespace Stealth
     /// </summary>
     public class CameraManager : MonoBehaviour
     {
+        [SerializeField]
+        private Text cameraText;
+
+        public static int DisabledCamerasAmount
+        {
+            get
+            {
+                int amount = 0;
+                foreach (GalleryCamera camera in cameras)
+                {
+                    if (camera.Disabled) amount++;
+                }
+                return amount;
+            }
+        }
+
         private static GalleryCamera[] cameras;
 
         private void Awake()
         {
             cameras = FindObjectsOfType<GalleryCamera>();
+            // Register event
+            foreach (GalleryCamera camera in cameras)
+            {
+                camera.CameraClicked += OnCameraDisabledChanged;
+            }
+        }
+
+        private void OnCameraDisabledChanged(GalleryCamera cam)
+        {
+            cameraText.text = $"Deactivated Cameras: {DisabledCamerasAmount}";
         }
 
         [MenuItem("Game/Update vision all cameras _F10")]
@@ -40,6 +68,14 @@ namespace Stealth
                 }
             }
             return false;
+        }
+
+        public static void EnableAllCameras()
+        {
+            foreach (GalleryCamera camera in cameras)
+            {
+                camera.Disabled = false;
+            }
         }
     }
 }

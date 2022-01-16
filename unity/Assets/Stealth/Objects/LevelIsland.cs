@@ -80,12 +80,8 @@ namespace Stealth.Objects
 
             edgeCollider = GetComponent<EdgeCollider2D>();
 
-            meshRenderer.enabled = true;
-        }
-
-        private void Start()
-        {
             UpdateMesh();
+            meshRenderer.enabled = true;
         }
 
         [ContextMenu("Update mesh")]

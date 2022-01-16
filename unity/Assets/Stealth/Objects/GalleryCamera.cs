@@ -1,5 +1,6 @@
 ﻿using Stealth.Controller;
 using Stealth.Utils;
+using System;
 using UnityEngine;
 using Util.Algorithms.Triangulation;
 using Util.Geometry;
@@ -28,14 +29,24 @@ namespace Stealth.Objects
         [SerializeField]
         private MeshFilter visionMeshFilter;
 
+        private bool _disabled;
+        public bool Disabled
+        {
+            get => _disabled;
+            set
+            {
+                _disabled = value;
+                visionMeshFilter?.gameObject.SetActive(!_disabled);
+            }
+        }
+
+        public event Action<GalleryCamera> CameraClicked;
+
         private Mesh visionMesh;
-        public Polygon2D visionArea;
+        private Polygon2D visionArea;
         private LevelIsland level;
 
         //private float oldFieldOfViewDegrees;
-
-        [SerializeField]
-        public bool disabled = false;
 
         private StealthController stealthController;
         private CameraVision vision;
@@ -77,6 +88,7 @@ namespace Stealth.Objects
 
         public bool IsPointVisible(Vector2 point)
         {
+            if (Disabled) return false;
             return visionArea == null ? false : visionArea.ContainsInside(point);
         }
 
@@ -121,30 +133,14 @@ namespace Stealth.Objects
             }
         }
 
-        //private void Start()
-        //{
-        //    oldFieldOfViewDegrees = FieldOfViewDegrees;
-        //}
-
-        //private void Update()
-        //{
-        //    if (transform.hasChanged || FieldOfViewDegrees!=oldFieldOfViewDegrees)
-        //    {
-        //        CalculateVisionPolygon();
-        //        transform.hasChanged = false;
-        //        oldFieldOfViewDegrees = FieldOfViewDegrees;
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Toggles this camera from enabled to disabled
-        ///// </summary>
-        //private void OnMouseDown()
-        //{
-        //    visionMeshFilter.gameObject.SetActive(disabled);
-        //    disabled = !disabled;
-        //    stealthController.cameraVisionChanged = true;
-        //}
+        /// <summary>
+        /// Toggles this camera from enabled to disabled
+        /// </summary>
+        private void OnMouseDown()
+        {
+            Disabled = !Disabled;
+            CameraClicked?.Invoke(this);
+        }
 
 
         /// <summary>

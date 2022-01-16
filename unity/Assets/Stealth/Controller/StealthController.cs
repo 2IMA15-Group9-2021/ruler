@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using General.Menu;
 using Stealth.Objects;
 using UnityEngine;
@@ -15,44 +15,53 @@ namespace Stealth.Controller
     public class StealthController : MonoBehaviour
     {   
         [SerializeField]
-        private GameObject timeLabel;
+        private Text timeLabel;
+
+        [SerializeField]
+        private RectTransform gameOverLabel;
+
+        [SerializeField]
+        private float levelResetDelay = 1;
         
         [SerializeField]
         private ButtonContainer advanceButton;
 
         [SerializeField]
-        private Text cameraText;
-
-        [SerializeField]
-        private GameObject player;
+        private PlayerController playerController;
 
         // store starting time of level
         private float puzzleStartTime;
 
-        // stores the current level index
-        private int levelCounter = -1;
+        private bool gameEnded;
 
-        //stores the number of deactivated cameras
-        private int deactivatedCameras = 0;
-
-        public static List<GalleryCamera> cameraList = new List<GalleryCamera>();
-        public static List<String> cameraNames = new List<String>();
-        public static List<Polygon2D> cameraPolygons = new List<Polygon2D>();
-        public static List<Boolean> playerVisibility = new List<Boolean>();
-        public Boolean cameraVisionChanged=false;
+        private Vector3 initialPlayerPosition;
 
 
         /// <summary>
         /// Initializes the level and starts gameplay.
         /// </summary>
-        public void InitializeLevel()
+        private void InitializeLevel()
+        {
+            initialPlayerPosition = playerController.transform.position;
+            ResetLevel();
+        }
+
+        private void ResetLevel()
         {
             advanceButton.Disable();
+            gameOverLabel.gameObject.SetActive(false);
+
+            playerController.transform.position = initialPlayerPosition;
+            playerController.enabled = true;
+
+            CameraManager.UpdateVisionCameras();
+            CameraManager.EnableAllCameras();
         }
         
-        // Use this for initialization
         void Start()
         {
+            puzzleStartTime = Time.time;
+            InitializeLevel();
         }
 
         /// <summary>
@@ -60,25 +69,12 @@ namespace Stealth.Controller
         /// </summary>
         private void Update()
         {
-            //UpdateTimeText();
-            
-            //if (player.transform.hasChanged || cameraVisionChanged)
-            //{
-            //    int count = 0;
-            //    foreach (var camera in cameraList)
-            //    {
-            //        if (!camera.disabled)
-            //        {
-            //            if (IsPlayerInPolygon(camera.visionArea))
-            //                count++;
-            //        }
-                    
-            //    }
-            //    Debug.Log(count + "cameras are currently seeing the player");
-                
-            //    cameraVisionChanged = false;
-            //    player.transform.hasChanged = false;
-            //}
+            UpdateTimeText();
+
+            if (CameraManager.IsPointVisible(playerController.transform.position))
+            {
+                StartCoroutine(FailLevel());
+            }
         }
 
         ///// <summary>
@@ -104,17 +100,16 @@ namespace Stealth.Controller
         /// <summary>
         /// Resets the level.
         /// </summary>
-        public void FailLevel()
+        private IEnumerator FailLevel()
         {
-            throw new NotImplementedException();
-        }
-        
-        /// <summary>
-        /// Update the text field with max number of lighthouses which can still be placed
-        /// </summary>
-        private void UpdateCamerasText()
-        {
-            cameraText.text = "Deactivated Cameras: " + deactivatedCameras;
+            gameEnded = true;
+
+            playerController.enabled = false;
+            gameOverLabel.gameObject.SetActive(true);
+
+            yield return new WaitForSeconds(levelResetDelay);
+
+            ResetLevel();
         }
         
         /// <summary>
@@ -122,7 +117,7 @@ namespace Stealth.Controller
         /// </summary>
         private void UpdateTimeText()
         {
-            timeLabel.GetComponentInChildren<Text>().text = string.Format("Time: {0:0.}s", Time.time - puzzleStartTime);
+            timeLabel.text = $"Time: {(int)Mathf.Floor(Time.time - puzzleStartTime)}s";
         }
     }
 }
