@@ -370,7 +370,7 @@ namespace Stealth.Utils
                     result.AddVertex(intersections[0].Item2);
                 }
             }
-
+            camera.visionPoly = result;
             // Return polygon in local space of camera transform, if necessary
             return inLocalSpace ? result.ToLocalSpace(camera.transform) : result;
         }

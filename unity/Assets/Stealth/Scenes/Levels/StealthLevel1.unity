@@ -1413,6 +1413,7 @@ MonoBehaviour:
   m_timeLabel: {fileID: 1824536172}
   m_advanceButton: {fileID: 1052460843}
   m_camerasText: {fileID: 694819381}
+  cameraVisionChanged: 0
   player: {fileID: 2083318289}
 --- !u!4 &1580064497
 Transform:
@@ -2067,27 +2068,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e4f9687c39d5be646849e286ef18577d, type: 3}
---- !u!1 &2397527166167061049 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6698792984551174558, guid: e4f9687c39d5be646849e286ef18577d,
-    type: 3}
-  m_PrefabInstance: {fileID: 2397527166167061048}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2397527166167061050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2397527166167061049}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f421519986e9b54d89005b4782b754a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  camera: {fileID: 0}
-  meshFilter: {fileID: 0}
-  visionMesh: {fileID: 0}
 --- !u!1001 &3409390131678677187
 PrefabInstance:
   m_ObjectHideFlags: 0

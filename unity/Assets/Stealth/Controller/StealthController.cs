@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using General.Menu;
+using Stealth.Objects;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -33,11 +34,12 @@ namespace Stealth.Controller
 
         //stores the number of deactivated cameras
         private int m_deactivatedCameras = 0;
-        
+
+        public static List<GalleryCamera> cameraList = new List<GalleryCamera>();
         public static List<String> cameraNames = new List<String>();
         public static List<Polygon2D> cameraPolygons = new List<Polygon2D>();
         public static List<Boolean> playerVisibility = new List<Boolean>();
-        public static Boolean cameraVisionChanged=false;
+        public Boolean cameraVisionChanged=false;
 
         [SerializeField]
         private GameObject player;
@@ -59,6 +61,10 @@ namespace Stealth.Controller
         void Start()
         {
             AdvanceLevel();
+            foreach (GalleryCamera camera in FindObjectsOfType<GalleryCamera>())
+            {
+                cameraList.Add(camera);
+            }
         }
 
         /// <summary>
@@ -71,10 +77,14 @@ namespace Stealth.Controller
             if (player.transform.hasChanged || cameraVisionChanged)
             {
                 int count = 0;
-                foreach (var polygon in cameraPolygons)
+                foreach (var camera in cameraList)
                 {
-                    if (IsPlayerInPolygon(polygon))
-                        count++;
+                    if (!camera.disabled)
+                    {
+                        if (IsPlayerInPolygon(camera.visionPoly))
+                            count++;
+                    }
+                    
                 }
                 Debug.Log(count + "cameras are currently seeing the player");
                 
@@ -91,7 +101,6 @@ namespace Stealth.Controller
                 vertices.Add(x);
             }
             var position = player.transform.position;
-            
             int i, j;
             bool result=false;
             for (i = 0, j = vertices.Count-1; i < vertices.Count; j = i++)

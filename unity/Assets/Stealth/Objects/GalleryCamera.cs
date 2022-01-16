@@ -1,7 +1,9 @@
-﻿using Stealth.Utils;
+﻿using Stealth.Controller;
+using Stealth.Utils;
 using UnityEngine;
 using Util.Algorithms.Triangulation;
 using Util.Geometry;
+using Util.Geometry.Polygon;
 
 namespace Stealth.Objects
 {
@@ -25,6 +27,7 @@ namespace Stealth.Objects
 
         private MeshFilter meshFilter;
         private Mesh visionMesh;
+        public Polygon2D visionPoly;
         private LevelPolygon level;
 
         private float oldFieldOfViewDegrees;
@@ -64,7 +67,6 @@ namespace Stealth.Objects
         private void Awake()
         {
             level = FindObjectOfType<LevelPolygon>();
-            meshFilter = GetComponent<MeshFilter>();
             visionMesh = new Mesh();
             meshFilter = GetComponentInChildren<MeshFilter>();
         }
@@ -100,6 +102,7 @@ namespace Stealth.Objects
 
             vision = new CameraVision(this, level);
             var polygon = vision.Compute();
+            //visionPoly = polygon;
 
             visionMesh = Triangulator.Triangulate(polygon).CreateMesh();
             visionMesh.RecalculateNormals();
@@ -128,6 +131,7 @@ namespace Stealth.Objects
         {
             transform.GetChild(0).gameObject.SetActive(disabled);
             disabled = !disabled;
+            FindObjectOfType<StealthController>().cameraVisionChanged = true;
         }
 
 
