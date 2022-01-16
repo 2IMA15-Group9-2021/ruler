@@ -32,8 +32,15 @@ namespace Stealth.Controller
         // stores the current level index
         private int m_levelCounter = -1;
 
-        //stores the number of deactivated cameras
+        // stores the number of deactivated cameras
         private int m_deactivatedCameras = 0;
+
+        // stores the maximum number of cameras that may be disabled
+        [SerializeField]
+        private int m_deactivationLimit = 0;
+
+        // A flag that denotes if the maximum number of cameras has been switched off
+        public bool deactivateLimitReached = false;
 
         public static List<GalleryCamera> cameraList = new List<GalleryCamera>();
         public static List<String> cameraNames = new List<String>();
@@ -77,6 +84,7 @@ namespace Stealth.Controller
             if (player.transform.hasChanged || cameraVisionChanged)
             {
                 int count = 0;
+                int disabledCount = 0;
                 foreach (var camera in cameraList)
                 {
                     if (!camera.disabled)
@@ -84,10 +92,17 @@ namespace Stealth.Controller
                         if (IsPlayerInPolygon(camera.visionPoly))
                             count++;
                     }
+                    else
+                    {
+                        disabledCount++;
+                    }
                     
                 }
                 Debug.Log(count + "cameras are currently seeing the player");
-                
+
+                m_deactivatedCameras = disabledCount;
+                deactivateLimitReached = disabledCount >= m_deactivationLimit;
+                UpdateCamerasText();
                 cameraVisionChanged = false;
                 player.transform.hasChanged = false;
             }
@@ -144,15 +159,15 @@ namespace Stealth.Controller
         }    
         
         /// <summary>
-        /// Update the text field with max number of lighthouses which can still be placed
+        /// Update the text field with the number of deactivated cameras
         /// </summary>
         private void UpdateCamerasText()
         {
-            m_camerasText.text = "Deactivated Cameras: " + m_deactivatedCameras;
+            m_camerasText.text = "Deactivated Cameras: " + m_deactivatedCameras + " / " + m_deactivationLimit;
         }
         
         /// <summary>
-        /// Update the text field with max number of lighthouses which can still be placed
+        /// Update the text field with the time taken for the current level
         /// </summary>
         private void UpdateTimeText()
         {

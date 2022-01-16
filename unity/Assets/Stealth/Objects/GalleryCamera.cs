@@ -129,9 +129,21 @@ namespace Stealth.Objects
         /// </summary>
         private void OnMouseDown()
         {
-            transform.GetChild(0).gameObject.SetActive(disabled);
-            disabled = !disabled;
-            FindObjectOfType<StealthController>().cameraVisionChanged = true;
+            if (this.disabled)
+            {
+                disabled = false;
+                transform.GetChild(0).gameObject.SetActive(true);
+                FindObjectOfType<StealthController>().cameraVisionChanged = true;
+            } 
+            else
+            {
+                if (!FindObjectOfType<StealthController>().deactivateLimitReached)
+                {
+                    disabled = true;
+                    transform.GetChild(0).gameObject.SetActive(false);
+                    FindObjectOfType<StealthController>().cameraVisionChanged = true;
+                }
+            }
         }
 
 
