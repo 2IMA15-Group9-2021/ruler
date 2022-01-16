@@ -146,7 +146,6 @@ namespace Stealth.Objects
             }
         }
 
-
         /// <summary>
         /// Draws camera field of view in the editor.
         /// </summary>

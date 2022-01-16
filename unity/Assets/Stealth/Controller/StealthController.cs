@@ -43,9 +43,6 @@ namespace Stealth.Controller
         public bool deactivateLimitReached = false;
 
         public static List<GalleryCamera> cameraList = new List<GalleryCamera>();
-        public static List<String> cameraNames = new List<String>();
-        public static List<Polygon2D> cameraPolygons = new List<Polygon2D>();
-        public static List<Boolean> playerVisibility = new List<Boolean>();
         public Boolean cameraVisionChanged=false;
 
         [SerializeField]
@@ -87,19 +84,28 @@ namespace Stealth.Controller
                 int disabledCount = 0;
                 foreach (var camera in cameraList)
                 {
+                    // Only check detection if this camera is disabled
                     if (!camera.disabled)
                     {
                         if (IsPlayerInPolygon(camera.visionPoly))
+                        {
                             count++;
+                        } 
                     }
                     else
                     {
+                        // If the camera was disabled, keep track of this
                         disabledCount++;
                     }
                     
                 }
                 Debug.Log(count + "cameras are currently seeing the player");
 
+                // If at least one camera sees the player object, the level is failed, and the player must restart
+                if (count > 0)
+                {
+                    FailLevel();
+                }
                 m_deactivatedCameras = disabledCount;
                 deactivateLimitReached = disabledCount >= m_deactivationLimit;
                 UpdateCamerasText();
@@ -108,6 +114,11 @@ namespace Stealth.Controller
             }
         }
         
+        /// <summary>
+        /// Checks if the player object is inside the given polygon
+        /// </summary>
+        /// <param name="polygon">The polygon for which to check if the player object is inside it</param>
+        /// <returns>True if the centre of the player object is inside the polygon, False otherwise.</returns>
         bool IsPlayerInPolygon(Polygon2D polygon)
         {
             List<Vector2> vertices = new List<Vector2>();
@@ -151,11 +162,19 @@ namespace Stealth.Controller
         }
 
         /// <summary>
-        /// Resets the level.
+        /// Resets the level. Sets m_deactivatedCameras to 0 to avoid softlocking, 
+        /// re-enables all cameras, and clears the list of cameras.
+        /// Then, it reloads the current scene.
         /// </summary>
         public void FailLevel()
         {
-            throw new NotImplementedException();
+            m_deactivatedCameras = 0;
+            foreach (var camera in cameraList)
+            {
+                camera.disabled = false;
+            }
+            cameraList.Clear();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }    
         
         /// <summary>
