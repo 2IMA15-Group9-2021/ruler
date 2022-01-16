@@ -110,7 +110,9 @@ namespace Stealth.Controller
         }
 
         /// <summary>
-        /// Resets the level.
+        /// Resets the level. Sets m_deactivatedCameras to 0 to avoid softlocking, 
+        /// re-enables all cameras, and clears the list of cameras.
+        /// Then, it reloads the current scene.
         /// </summary>
         private IEnumerator FailLevel()
         {
@@ -123,7 +125,7 @@ namespace Stealth.Controller
         }
         
         /// <summary>
-        /// Update the text field with max number of lighthouses which can still be placed
+        /// Update the text field with the time taken for the current level
         /// </summary>
         private void UpdateTimeText()
         {
