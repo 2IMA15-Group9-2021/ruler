@@ -403,8 +403,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
+      - m_Target: {fileID: 1856615512}
+        m_TargetAssemblyTypeName: Stealth.Controller.StealthController, Assembly-CSharp
         m_MethodName: AdvanceLevel
         m_Mode: 1
         m_Arguments:
@@ -414,7 +414,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 1
+        m_CallState: 2
 --- !u!114 &366457569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -988,6 +988,75 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 694819379}
   m_CullTransparentMesh: 0
+--- !u!1001 &718595665
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1567076570996911802, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_Name
+      value: FinishArea
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 6.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1c8e40e7595167345b67488ba9221f96, type: 3}
 --- !u!1 &986991754
 GameObject:
   m_ObjectHideFlags: 0
@@ -1723,8 +1792,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeLabel: {fileID: 1396937758}
   gameOverLabel: {fileID: 438194711}
+  levelResetDelay: 1
   advanceButton: {fileID: 1052460843}
   playerController: {fileID: 46575671}
+  nextSceneName: stealthVictory
 --- !u!4 &1856615513
 Transform:
   m_ObjectHideFlags: 0
@@ -1960,16 +2031,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -28.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1883093993927041751, guid: e4f9687c39d5be646849e286ef18577d,
-        type: 3}
-      propertyPath: gizmoColor.a
-      value: 0.49803922
-      objectReference: {fileID: 0}
-    - target: {fileID: 1883093993927041751, guid: e4f9687c39d5be646849e286ef18577d,
-        type: 3}
-      propertyPath: _fieldOfViewDegrees
-      value: 141.48
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e4f9687c39d5be646849e286ef18577d, type: 3}

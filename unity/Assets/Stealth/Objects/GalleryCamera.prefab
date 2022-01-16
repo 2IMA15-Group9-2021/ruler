@@ -46,11 +46,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dd86002d358835469ba854503f8b067, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gizmoColor: {r: 0.10307205, g: 1, b: 0, a: 1}
+  gizmoColor: {r: 0.10307205, g: 1, b: 0, a: 0.49803922}
   gizmoLength: 8.17
-  _fieldOfViewDegrees: 45.68
+  _fieldOfViewDegrees: 141.48
   visionMeshFilter: {fileID: 0}
-  disabled: 0
 --- !u!61 &-7400601059368485422
 BoxCollider2D:
   m_ObjectHideFlags: 0

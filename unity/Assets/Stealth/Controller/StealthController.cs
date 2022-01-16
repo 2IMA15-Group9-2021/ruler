@@ -29,6 +29,11 @@ namespace Stealth.Controller
         [SerializeField]
         private PlayerController playerController;
 
+        [SerializeField]
+        private string nextSceneName = "stealthVictory";
+
+        private FinishArea finishArea;
+
         // store starting time of level
         private float puzzleStartTime;
 
@@ -57,11 +62,38 @@ namespace Stealth.Controller
             CameraManager.UpdateVisionCameras();
             CameraManager.EnableAllCameras();
         }
-        
+
+        private void Awake()
+        {
+            finishArea = FindObjectOfType<FinishArea>();
+        }
+
         void Start()
         {
             puzzleStartTime = Time.time;
             InitializeLevel();
+        }
+
+        private void OnEnable()
+        {
+            finishArea.PlayerEnteredGoal += OnPlayerEnteredGoal;
+            finishArea.PlayerExitedGoal += OnPlayerExitedGoal;
+        }
+
+        private void OnDisable()
+        {
+            finishArea.PlayerEnteredGoal -= OnPlayerEnteredGoal;
+            finishArea.PlayerExitedGoal -= OnPlayerExitedGoal;
+        }
+
+        private void OnPlayerEnteredGoal()
+        {
+            advanceButton.Enable();
+        }
+
+        private void OnPlayerExitedGoal()
+        {
+            advanceButton.Disable();
         }
 
         /// <summary>
@@ -77,25 +109,16 @@ namespace Stealth.Controller
             }
         }
 
-        ///// <summary>
-        ///// Advances to the next level.
-        ///// </summary>
-        //public void AdvanceLevel()
-        //{
-        //    levelCounter++;
-
-        //    // 5 levels?
-        //    if (levelCounter < 5)
-        //    {
-        //        InitializeLevel();
-        //    }
-        //    else
-        //    {
-        //        SceneManager.LoadScene("stealthVictory");
-        //    }
-            
-        //    puzzleStartTime = Time.time;
-        //}
+        /// <summary>
+        /// Advances to the next level.
+        /// </summary>
+        /// <remarks>
+        /// This method should be registered with a button in the editor.
+        /// </remarks>
+        public void AdvanceLevel()
+        {
+            SceneManager.LoadScene(nextSceneName);
+        }
 
         /// <summary>
         /// Resets the level.

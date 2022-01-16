@@ -1,26 +1,37 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FinishArea : MonoBehaviour
+namespace Stealth.Objects
 {
-    private BoxCollider2D boxCollider;
-
-    // Start is called before the first frame update
-    void Start()
+    [RequireComponent(typeof(BoxCollider2D))]
+    public class FinishArea : MonoBehaviour
     {
-        boxCollider = GetComponent<BoxCollider2D>();
-    }
+        public event Action PlayerEnteredGoal;
+        public event Action PlayerExitedGoal;
 
-    // Update is called once per frame
-    void Update()
-    {
+        private BoxCollider2D boxCollider;
 
-    }
+        void Start()
+        {
+            boxCollider = GetComponent<BoxCollider2D>();
+        }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Debug.Log("Entered Finish Area");
-        // Put handling code for advancing to the next level here
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.gameObject.CompareTag("Player"))
+            {
+                PlayerEnteredGoal?.Invoke();
+            }
+        }
+
+        private void OnTriggerExit2D(Collider2D collision)
+        {
+            if (collision.gameObject.CompareTag("Player"))
+            {
+                PlayerExitedGoal?.Invoke();
+            }
+        }
     }
 }

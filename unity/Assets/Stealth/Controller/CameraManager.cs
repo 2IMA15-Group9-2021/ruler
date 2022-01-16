@@ -33,10 +33,21 @@ namespace Stealth
         private void Awake()
         {
             cameras = FindObjectsOfType<GalleryCamera>();
-            // Register event
+        }
+
+        private void OnEnable()
+        {
             foreach (GalleryCamera camera in cameras)
             {
                 camera.CameraClicked += OnCameraDisabledChanged;
+            }
+        }
+
+        private void OnDisable()
+        {
+            foreach (GalleryCamera camera in cameras)
+            {
+                camera.CameraClicked -= OnCameraDisabledChanged;
             }
         }
 
