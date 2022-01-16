@@ -13,27 +13,27 @@ namespace Stealth.Controller
     /// Manages the overall flow of a single level of the Stealth game.
     /// </summary>
     public class StealthController : MonoBehaviour
-    {
+    {   
         [SerializeField]
-        private StealthHelper helper;
+        private GameObject timeLabel;
         
         [SerializeField]
-        private GameObject m_timeLabel;
-        
+        private ButtonContainer advanceButton;
+
+        [SerializeField]
+        private Text cameraText;
+
+        [SerializeField]
+        private GameObject player;
+
         // store starting time of level
         private float puzzleStartTime;
-        
-        [SerializeField]
-        private ButtonContainer m_advanceButton;
 
-        [SerializeField]
-        private Text m_camerasText;
-        
         // stores the current level index
-        private int m_levelCounter = -1;
+        private int levelCounter = -1;
 
         //stores the number of deactivated cameras
-        private int m_deactivatedCameras = 0;
+        private int deactivatedCameras = 0;
 
         public static List<GalleryCamera> cameraList = new List<GalleryCamera>();
         public static List<String> cameraNames = new List<String>();
@@ -41,30 +41,18 @@ namespace Stealth.Controller
         public static List<Boolean> playerVisibility = new List<Boolean>();
         public Boolean cameraVisionChanged=false;
 
-        [SerializeField]
-        private GameObject player;
 
         /// <summary>
         /// Initializes the level and starts gameplay.
         /// </summary>
         public void InitializeLevel()
         {
-           
-            m_advanceButton.Disable();
-
-            // Calculate overlapping areas of camera views
-            // Construct data structure for efficient point (player) location
-            // Enable player control
+            advanceButton.Disable();
         }
         
         // Use this for initialization
         void Start()
         {
-            AdvanceLevel();
-            foreach (GalleryCamera camera in FindObjectsOfType<GalleryCamera>())
-            {
-                cameraList.Add(camera);
-            }
         }
 
         /// <summary>
@@ -72,68 +60,46 @@ namespace Stealth.Controller
         /// </summary>
         private void Update()
         {
-            UpdateTimeText();
+            //UpdateTimeText();
             
-            if (player.transform.hasChanged || cameraVisionChanged)
-            {
-                int count = 0;
-                foreach (var camera in cameraList)
-                {
-                    if (!camera.disabled)
-                    {
-                        if (IsPlayerInPolygon(camera.visionPoly))
-                            count++;
-                    }
+            //if (player.transform.hasChanged || cameraVisionChanged)
+            //{
+            //    int count = 0;
+            //    foreach (var camera in cameraList)
+            //    {
+            //        if (!camera.disabled)
+            //        {
+            //            if (IsPlayerInPolygon(camera.visionArea))
+            //                count++;
+            //        }
                     
-                }
-                Debug.Log(count + "cameras are currently seeing the player");
+            //    }
+            //    Debug.Log(count + "cameras are currently seeing the player");
                 
-                cameraVisionChanged = false;
-                player.transform.hasChanged = false;
-            }
-        }
-        
-        bool IsPlayerInPolygon(Polygon2D polygon)
-        {
-            List<Vector2> vertices = new List<Vector2>();
-            foreach (var x in polygon.Vertices)
-            {
-                vertices.Add(x);
-            }
-            var position = player.transform.position;
-            int i, j;
-            bool result=false;
-            for (i = 0, j = vertices.Count-1; i < vertices.Count; j = i++)
-            {
-                if (((vertices[i].y >= position.y) != (vertices[j].y >= position.y)) &&
-                    (position.x <=
-                     (vertices[j].x - vertices[i].x) * (position.y - vertices[i].y) / (vertices[j].y - vertices[i].y) +
-                     vertices[i].x))
-                    result = !result;
-            }
-            
-            return result;
+            //    cameraVisionChanged = false;
+            //    player.transform.hasChanged = false;
+            //}
         }
 
-        /// <summary>
-        /// Advances to the next level.
-        /// </summary>
-        public void AdvanceLevel()
-        {
-            m_levelCounter++;
+        ///// <summary>
+        ///// Advances to the next level.
+        ///// </summary>
+        //public void AdvanceLevel()
+        //{
+        //    levelCounter++;
 
-            // 5 levels?
-            if (m_levelCounter < 5)
-            {
-                InitializeLevel();
-            }
-            else
-            {
-                SceneManager.LoadScene("stealthVictory");
-            }
+        //    // 5 levels?
+        //    if (levelCounter < 5)
+        //    {
+        //        InitializeLevel();
+        //    }
+        //    else
+        //    {
+        //        SceneManager.LoadScene("stealthVictory");
+        //    }
             
-            puzzleStartTime = Time.time;
-        }
+        //    puzzleStartTime = Time.time;
+        //}
 
         /// <summary>
         /// Resets the level.
@@ -141,14 +107,14 @@ namespace Stealth.Controller
         public void FailLevel()
         {
             throw new NotImplementedException();
-        }    
+        }
         
         /// <summary>
         /// Update the text field with max number of lighthouses which can still be placed
         /// </summary>
         private void UpdateCamerasText()
         {
-            m_camerasText.text = "Deactivated Cameras: " + m_deactivatedCameras;
+            cameraText.text = "Deactivated Cameras: " + deactivatedCameras;
         }
         
         /// <summary>
@@ -156,7 +122,7 @@ namespace Stealth.Controller
         /// </summary>
         private void UpdateTimeText()
         {
-            m_timeLabel.GetComponentInChildren<Text>().text = string.Format("Time: {0:0.}s", Time.time - puzzleStartTime);
+            timeLabel.GetComponentInChildren<Text>().text = string.Format("Time: {0:0.}s", Time.time - puzzleStartTime);
         }
     }
 }

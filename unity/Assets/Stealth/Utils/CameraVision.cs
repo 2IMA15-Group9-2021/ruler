@@ -230,7 +230,7 @@ namespace Stealth.Utils
                 // Determine which is the start endpoint and which is the end endpoint
                 // We want to follow the segment in the direction of the sweep line
                 // so we can determine the order by their angle to the viewpoint
-                float angleDiff = GetCounterClockwiseAngle(viewpoint, boundaryLine, segment.Point2, true) - GetCounterClockwiseAngle(viewpoint, boundaryLine, segment.Point1, true);
+                float angleDiff = Vector2.SignedAngle(segment.Point1 - viewpoint, segment.Point2 - viewpoint);
                 endpoint1.IsBegin = angleDiff > 0;
                 endpoint2.IsBegin = !endpoint1.IsBegin;
 
@@ -370,7 +370,6 @@ namespace Stealth.Utils
                     result.AddVertex(intersections[0].Item2);
                 }
             }
-            camera.visionPoly = result;
             // Return polygon in local space of camera transform, if necessary
             return inLocalSpace ? result.ToLocalSpace(camera.transform) : result;
         }
@@ -422,6 +421,10 @@ namespace Stealth.Utils
             {
                 intersectedSegments.Delete(e.Segment);
                 LineSegment newFront = intersectedSegments.FindMin();
+                if (newFront == null)
+                {
+
+                }
                 if (oldFront != newFront)
                 {
                     if (e.Vertex != result.Vertices.Last())

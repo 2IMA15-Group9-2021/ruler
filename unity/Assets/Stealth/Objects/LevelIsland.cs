@@ -209,7 +209,7 @@ namespace Stealth.Objects
             {
                 // Draw vertices of outside boundary
                 Gizmos.color = debugSettings.OutsideColor;
-                Gizmos.DrawMesh(outsideMesh, transform.position);
+                Gizmos.DrawWireMesh(outsideMesh, transform.position);
             }
 
             // Draw edges of holes

@@ -25,16 +25,19 @@ namespace Stealth.Objects
         [Tooltip("The field of view of the camera, expressed in degrees.")]
         private float _fieldOfViewDegrees;
 
-        private MeshFilter meshFilter;
+        [SerializeField]
+        private MeshFilter visionMeshFilter;
+
         private Mesh visionMesh;
-        public Polygon2D visionPoly;
+        public Polygon2D visionArea;
         private LevelIsland level;
 
-        private float oldFieldOfViewDegrees;
+        //private float oldFieldOfViewDegrees;
 
         [SerializeField]
         public bool disabled = false;
 
+        private StealthController stealthController;
         private CameraVision vision;
 
         /// <summary>
@@ -68,7 +71,13 @@ namespace Stealth.Objects
         {
             level = FindObjectOfType<LevelIsland>();
             visionMesh = new Mesh();
-            meshFilter = GetComponentInChildren<MeshFilter>();
+            visionMeshFilter = GetComponentInChildren<MeshFilter>();
+            stealthController = FindObjectOfType<StealthController>();
+        }
+
+        public bool IsPointVisible(Vector2 point)
+        {
+            return visionArea == null ? false : visionArea.ContainsInside(point);
         }
 
         /// <summary>
@@ -91,48 +100,51 @@ namespace Stealth.Objects
             return new Line(transform.position, rot + 0.5f * FieldOfView);
         }
 
-        [ContextMenu("Calculate vision polygon")]
-        private void CalculateVisionPolygon()
+        /// <summary>
+        /// Computes the vision area of this camera
+        /// </summary>
+        [ContextMenu("Compute vision area")]
+        public void ComputeVisionArea()
         {
-            if (!Application.isPlaying)
-            {
-                Debug.Log("This method needs to be written differently to be used outside play mode.");
-                return;
-            }
+            if (level == null) level = FindObjectOfType<LevelIsland>();
 
             vision = new CameraVision(this, level);
-            var polygon = vision.Compute();
-            //visionPoly = polygon;
+            visionArea = vision.Compute(inLocalSpace: false);
 
-            visionMesh = Triangulator.Triangulate(polygon).CreateMesh();
+
+
+            visionMesh = Triangulator.Triangulate(visionArea.ToLocalSpace(transform)).CreateMesh();
             visionMesh.RecalculateNormals();
-            meshFilter.mesh = visionMesh;
-        }
-
-        private void Start()
-        {
-            oldFieldOfViewDegrees = FieldOfViewDegrees;
-        }
-
-        private void Update()
-        {
-            if (transform.hasChanged || FieldOfViewDegrees!=oldFieldOfViewDegrees)
+            if (Application.isPlaying)
             {
-                CalculateVisionPolygon();
-                transform.hasChanged = false;
-                oldFieldOfViewDegrees = FieldOfViewDegrees;
+                visionMeshFilter.mesh = visionMesh;
             }
         }
 
-        /// <summary>
-        /// Toggles this camera from enabled to disabled
-        /// </summary>
-        private void OnMouseDown()
-        {
-            transform.GetChild(0).gameObject.SetActive(disabled);
-            disabled = !disabled;
-            FindObjectOfType<StealthController>().cameraVisionChanged = true;
-        }
+        //private void Start()
+        //{
+        //    oldFieldOfViewDegrees = FieldOfViewDegrees;
+        //}
+
+        //private void Update()
+        //{
+        //    if (transform.hasChanged || FieldOfViewDegrees!=oldFieldOfViewDegrees)
+        //    {
+        //        CalculateVisionPolygon();
+        //        transform.hasChanged = false;
+        //        oldFieldOfViewDegrees = FieldOfViewDegrees;
+        //    }
+        //}
+
+        ///// <summary>
+        ///// Toggles this camera from enabled to disabled
+        ///// </summary>
+        //private void OnMouseDown()
+        //{
+        //    visionMeshFilter.gameObject.SetActive(disabled);
+        //    disabled = !disabled;
+        //    stealthController.cameraVisionChanged = true;
+        //}
 
 
         /// <summary>
@@ -145,6 +157,11 @@ namespace Stealth.Objects
             Quaternion rot2 = Quaternion.Euler(0, 0, 0.5f * FieldOfViewDegrees);
             Gizmos.DrawRay(transform.position, rot1 * transform.right * gizmoLength);
             Gizmos.DrawRay(transform.position, rot2 * transform.right * gizmoLength);
+
+            if (visionMesh != null)
+            {
+                Gizmos.DrawMesh(visionMesh, transform.position, transform.rotation);
+            }
         }
     }
 }

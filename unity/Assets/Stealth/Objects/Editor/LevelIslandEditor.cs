@@ -17,7 +17,7 @@ namespace Stealth
             {
                 Vector3 vertex = level.OutsideVertices[i];
 
-                float size = HandleUtility.GetHandleSize(vertex) * 0.25f;
+                float size = HandleUtility.GetHandleSize(vertex) * 0.2f;
                 Vector3 snap = Vector3.one * 0.5f;
 
                 EditorGUI.BeginChangeCheck();
