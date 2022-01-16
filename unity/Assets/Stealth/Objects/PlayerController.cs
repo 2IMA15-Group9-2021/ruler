@@ -6,7 +6,6 @@ namespace Stealth.Objects
     /// Manages player input and moves player.
     /// </summary>
     public class PlayerController : MonoBehaviour
-
     {
         /// <summary>
         /// The movement speed of the player.

@@ -48,7 +48,7 @@ namespace Stealth.Objects
 
         //private float oldFieldOfViewDegrees;
 
-        private StealthController stealthController;
+        private CameraManager cameraManager;
         private CameraVision vision;
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Stealth.Objects
             level = FindObjectOfType<LevelIsland>();
             visionMesh = new Mesh();
             visionMeshFilter = GetComponentInChildren<MeshFilter>();
-            stealthController = FindObjectOfType<StealthController>();
+            cameraManager = FindObjectOfType<CameraManager>();
         }
 
         public bool IsPointVisible(Vector2 point)
@@ -138,8 +138,11 @@ namespace Stealth.Objects
         /// </summary>
         private void OnMouseDown()
         {
-            Disabled = !Disabled;
-            CameraClicked?.Invoke(this);
+            if (Disabled || cameraManager.DisabledLimit < 0 || cameraManager.DisabledLimit > CameraManager.DisabledCamerasAmount)
+            {
+                Disabled = !Disabled;
+                CameraClicked?.Invoke(this);
+            }
         }
 
 

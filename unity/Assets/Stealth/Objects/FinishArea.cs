@@ -11,13 +11,6 @@ namespace Stealth.Objects
         public event Action PlayerEnteredGoal;
         public event Action PlayerExitedGoal;
 
-        private BoxCollider2D boxCollider;
-
-        void Start()
-        {
-            boxCollider = GetComponent<BoxCollider2D>();
-        }
-
         private void OnTriggerEnter2D(Collider2D collision)
         {
             if (collision.gameObject.CompareTag("Player"))

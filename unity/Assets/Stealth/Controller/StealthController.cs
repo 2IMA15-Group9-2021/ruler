@@ -37,30 +37,19 @@ namespace Stealth.Controller
         // store starting time of level
         private float puzzleStartTime;
 
-        private bool gameEnded;
-
-        private Vector3 initialPlayerPosition;
-
 
         /// <summary>
         /// Initializes the level and starts gameplay.
         /// </summary>
         private void InitializeLevel()
         {
-            initialPlayerPosition = playerController.transform.position;
-            ResetLevel();
-        }
-
-        private void ResetLevel()
-        {
             advanceButton.Disable();
             gameOverLabel.gameObject.SetActive(false);
 
-            playerController.transform.position = initialPlayerPosition;
-            playerController.enabled = true;
-
             CameraManager.UpdateVisionCameras();
             CameraManager.EnableAllCameras();
+
+            playerController.enabled = true;
         }
 
         private void Awake()
@@ -125,14 +114,12 @@ namespace Stealth.Controller
         /// </summary>
         private IEnumerator FailLevel()
         {
-            gameEnded = true;
-
             playerController.enabled = false;
             gameOverLabel.gameObject.SetActive(true);
 
             yield return new WaitForSeconds(levelResetDelay);
 
-            ResetLevel();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         
         /// <summary>

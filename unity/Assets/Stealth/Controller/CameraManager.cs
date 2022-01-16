@@ -15,6 +15,9 @@ namespace Stealth
         [SerializeField]
         private Text cameraText;
 
+        [SerializeField]
+        private int _disabledLimit = -1;
+
         public static int DisabledCamerasAmount
         {
             get
@@ -26,6 +29,12 @@ namespace Stealth
                 }
                 return amount;
             }
+        }
+
+        public int DisabledLimit
+        {
+            get => _disabledLimit;
+            set => _disabledLimit = value;
         }
 
         private static GalleryCamera[] cameras;

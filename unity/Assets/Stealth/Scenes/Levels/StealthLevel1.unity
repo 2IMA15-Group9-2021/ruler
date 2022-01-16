@@ -1671,6 +1671,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraText: {fileID: 694819381}
+  _disabledLimit: 1
 --- !u!4 &1785639491
 Transform:
   m_ObjectHideFlags: 0
