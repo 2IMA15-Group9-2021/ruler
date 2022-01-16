@@ -1,6 +1,7 @@
 ﻿using Stealth.Controller;
 using Stealth.Utils;
 using System;
+using System.Collections;
 using UnityEngine;
 using Util.Algorithms.Triangulation;
 using Util.Geometry;
@@ -26,7 +27,6 @@ namespace Stealth.Objects
         [Tooltip("The field of view of the camera, expressed in degrees.")]
         private float _fieldOfViewDegrees;
 
-        [SerializeField]
         private MeshFilter visionMeshFilter;
 
         private bool _disabled;
@@ -46,10 +46,10 @@ namespace Stealth.Objects
         private Polygon2D visionArea;
         private LevelIsland level;
 
-        //private float oldFieldOfViewDegrees;
-
         private CameraManager cameraManager;
-        private CameraVision vision;
+        public CameraVision Vision;
+
+        private IEnumerator visionEnumerator;
 
         /// <summary>
         /// The field of view of the camera, expressed in degrees.
@@ -120,16 +120,44 @@ namespace Stealth.Objects
         {
             if (level == null) level = FindObjectOfType<LevelIsland>();
 
-            vision = new CameraVision(this, level);
-            visionArea = vision.Compute(inLocalSpace: false);
-
-
+            Vision = new CameraVision(this, level);
+            visionArea = Vision.Compute(inLocalSpace: false);
 
             visionMesh = Triangulator.Triangulate(visionArea.ToLocalSpace(transform)).CreateMesh();
             visionMesh.RecalculateNormals();
             if (Application.isPlaying)
             {
                 visionMeshFilter.mesh = visionMesh;
+            }
+        }
+
+        [ContextMenu("Compute vision area stepwise")]
+        public void ComputeVisionAreaStepwise()
+        {
+            if (level == null) level = FindObjectOfType<LevelIsland>();
+
+            visionMesh = null;
+            Vision = new CameraVision(this, level);
+            visionEnumerator = Vision.ComputeStepwise(inLocalSpace: false);
+        }
+
+        public void AdvanceStepwiseComputation()
+        {
+            if (visionEnumerator == null) return;
+
+            if (!visionEnumerator.MoveNext())
+            {
+                visionMesh = Triangulator.Triangulate(Vision.Result.ToLocalSpace(transform)).CreateMesh();
+                visionMesh.RecalculateNormals();
+                if (Application.isPlaying)
+                {
+                    visionMeshFilter.mesh = visionMesh;
+                }
+
+                Vision = null;
+                visionEnumerator = null;
+
+                return;
             }
         }
 
@@ -159,6 +187,11 @@ namespace Stealth.Objects
             if (visionMesh != null)
             {
                 Gizmos.DrawMesh(visionMesh, transform.position, transform.rotation);
+            }
+
+            if (Vision != null && Vision.ComputationInProgress)
+            {
+                Vision.OnDrawGizmos();
             }
         }
     }

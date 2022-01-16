@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Stealth.Controller;
 using Stealth.Objects;
 using UnityEngine;
+using Util.Algorithms.Triangulation;
 using Util.Geometry;
 using Util.Geometry.Polygon;
 
@@ -14,6 +16,16 @@ namespace Stealth.Utils
     /// </summary>
     public class CameraVision
     {
+        /// <summary>
+        /// The final polygon to be reported.
+        /// </summary>
+        public Polygon2D Result;
+
+        /// <summary>
+        /// When a computation is in progress <see cref="Compute"/> cannot be called.
+        /// </summary>
+        public bool ComputationInProgress;
+
         /// <summary>
         /// The camera we're calculating the visibility of.
         /// </summary>
@@ -30,11 +42,6 @@ namespace Stealth.Utils
         private Line sweepLine;
 
         /// <summary>
-        /// The final polygon to be reported.
-        /// </summary>
-        private Polygon2D result;
-
-        /// <summary>
         /// The event queue.
         /// </summary>
         private Queue<Endpoint> eventQueue;
@@ -48,6 +55,11 @@ namespace Stealth.Utils
         /// Small value we use to avoid rounding-errors when computing the events.
         /// </summary>
         private float EPSILON = 1.0f;
+
+        /// <summary>
+        /// The in-progress mesh for the current computation.
+        /// </summary>
+        private Mesh progressMesh;
 
         /// <summary>
         /// This class compares two <see cref="LineSegment"/>s by their distance
@@ -112,7 +124,7 @@ namespace Stealth.Utils
         /// Custom storage for intersected line segments using a linked list.
         /// Should ideally be replaced with a BST.
         /// </summary>
-        private class StatusStructure
+        private class StatusStructure : IEnumerable<LineSegment>
         {
             private LinkedList<LineSegment> list;
             private SegmentComparer comparer;
@@ -175,6 +187,16 @@ namespace Stealth.Utils
             {
                 bool result = list.Remove(segment);
                 return result;
+            }
+
+            public IEnumerator<LineSegment> GetEnumerator()
+            {
+                return ((IEnumerable<LineSegment>)list).GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return ((IEnumerable)list).GetEnumerator();
             }
         }
 
@@ -300,9 +322,14 @@ namespace Stealth.Utils
         /// <returns>The vision polygon.</returns>
         public Polygon2D Compute(bool inLocalSpace = true)
         {
-            result = new Polygon2D();
+            if (ComputationInProgress)
+            {
+                throw new Exception("A computation is still in progress.");
+            }
+
+            Result = new Polygon2D();
             Vector2 viewpoint = camera.transform.position;
-            result.AddVertex(viewpoint);
+            Result.AddVertex(viewpoint);
 
             // Initialize the event queue
             List<Endpoint> endpoints = CreateEndpoints(level, camera);
@@ -345,7 +372,7 @@ namespace Stealth.Utils
                 if (!insertedSegment)
                 {
                     // Insert the first intersection that isn't an endpoint into the polygon
-                    result.AddVertex(point);
+                    Result.AddVertex(point);
                     insertedSegment = true;
                 }
 
@@ -367,11 +394,108 @@ namespace Stealth.Utils
             {
                 if (!intersections[0].Item1.IsEndpoint(intersections[0].Item2))
                 {
-                    result.AddVertex(intersections[0].Item2);
+                    Result.AddVertex(intersections[0].Item2);
                 }
             }
             // Return polygon in local space of camera transform, if necessary
-            return inLocalSpace ? result.ToLocalSpace(camera.transform) : result;
+            return inLocalSpace ? Result.ToLocalSpace(camera.transform) : Result;
+        }
+
+        /// <summary>
+        /// Returns an enumerator that allows the computation to be performed stepwise.
+        /// </summary>
+        /// <param name="inLocalSpace">True, if the polygon should be returned in local space of the camera.</param>
+        /// <returns>An enumerator for the computation.</returns>
+        public IEnumerator ComputeStepwise(bool inLocalSpace = true)
+        {
+            progressMesh = null;
+            ComputationInProgress = true;
+
+            Result = new Polygon2D();
+            Vector2 viewpoint = camera.transform.position;
+            Result.AddVertex(viewpoint);
+
+            // Initialize the event queue
+            List<Endpoint> endpoints = CreateEndpoints(level, camera);
+            // Filter endpoints that fall outside vision cone
+            endpoints = endpoints.Where(e => e.AngleToViewpoint <= camera.FieldOfViewDegrees + EPSILON).ToList();
+            // Create queue from list
+            eventQueue = new Queue<Endpoint>(endpoints);
+
+            // Initialize status
+            // Start sweeping from the right boundary, counter-clockwise
+            sweepLine = camera.GetRightBoundary();
+
+            List<Tuple<LineSegment, Vector2>> intersections = FindIntersections(sweepLine, level, camera.transform);
+            bool insertedSegment = false;
+            for (int i = 0; i < intersections.Count; i++)
+            {
+                LineSegment segment = intersections[i].Item1;
+                Vector2 point = intersections[i].Item2;
+
+                // Ignore intersections with endpoints
+                if (segment.IsEndpoint(point))
+                {
+                    // Check if the endpoint is a "begin" endpoint
+                    // if so, it will block whatever segment is
+                    // behind it
+                    if (!insertedSegment)
+                    {
+                        // Find the other endpoint
+                        Vector2 other = (point == segment.Point1) ? segment.Point2 : segment.Point1;
+                        // Calculate difference in angle
+                        float angleDiff = GetCounterClockwiseAngle(viewpoint, sweepLine, other, true) - GetCounterClockwiseAngle(viewpoint, sweepLine, point, true);
+                        if (angleDiff > 0)
+                        {
+                            insertedSegment = true;
+                        }
+                    }
+                    continue;
+                }
+
+                if (!insertedSegment)
+                {
+                    // Insert the first intersection that isn't an endpoint into the polygon
+                    Result.AddVertex(point);
+                    insertedSegment = true;
+                }
+
+                // Add segment into status
+                InsertIntoStatus(segment);
+            }
+
+            yield return null;
+
+            // Handle all events
+            while (eventQueue.Count > 0)
+            {
+                Endpoint e = eventQueue.Dequeue();
+                HandleEvent(e);
+                
+                // Compute in-progress mesh
+                if (Result.VertexCount > 2)
+                {
+                    progressMesh = Triangulator.Triangulate(Result).CreateMesh();
+                    progressMesh.RecalculateNormals();
+                }
+
+                yield return null;
+            }
+
+            // Find closest intersection and add vertex for it, if it is not an endpoint
+            sweepLine = camera.GetLeftBoundary();
+            intersections = FindIntersections(sweepLine, level, camera.transform);
+            if (intersections.Count > 0)
+            {
+                if (!intersections[0].Item1.IsEndpoint(intersections[0].Item2))
+                {
+                    Result.AddVertex(intersections[0].Item2);
+                }
+            }
+
+            if (inLocalSpace) Result = Result.ToLocalSpace(camera.transform);
+
+            ComputationInProgress = false;
         }
 
         private void HandleEvent(Endpoint e)
@@ -395,9 +519,9 @@ namespace Stealth.Utils
                 // boundary's vertices, simply add the current vertex
                 if (oldFront == null)
                 {
-                    if (e.Vertex != result.Vertices.Last())
+                    if (e.Vertex != Result.Vertices.Last())
                     {
-                        result.AddVertex(e.Vertex);
+                        Result.AddVertex(e.Vertex);
                     }
                 }
                 else if (oldFront != newFront)
@@ -407,13 +531,13 @@ namespace Stealth.Utils
                     {
                         throw new GeomException($"Sweep line doesn't intersect {oldFront}.");
                     }
-                    if (intersection.Value != e.Vertex && intersection.Value != result.Vertices.Last())
+                    if (intersection.Value != e.Vertex && intersection.Value != Result.Vertices.Last())
                     {
-                        result.AddVertex(intersection.Value);
+                        Result.AddVertex(intersection.Value);
                     }
-                    if (e.Vertex != result.Vertices.Last())
+                    if (e.Vertex != Result.Vertices.Last())
                     {
-                        result.AddVertex(e.Vertex);
+                        Result.AddVertex(e.Vertex);
                     }
                 }
             }
@@ -427,18 +551,18 @@ namespace Stealth.Utils
                 }
                 if (oldFront != newFront)
                 {
-                    if (e.Vertex != result.Vertices.Last())
+                    if (e.Vertex != Result.Vertices.Last())
                     {
-                        result.AddVertex(e.Vertex);
+                        Result.AddVertex(e.Vertex);
                     }
                     Vector2? intersection = newFront.Intersect(sweepLine);
                     if (!intersection.HasValue)
                     {
                         throw new GeomException($"Sweep line doesn't intersect {newFront}.");
                     }
-                    if (intersection.Value != e.Vertex && intersection.Value != result.Vertices.Last())
+                    if (intersection.Value != e.Vertex && intersection.Value != Result.Vertices.Last())
                     {
-                        result.AddVertex(intersection.Value);
+                        Result.AddVertex(intersection.Value);
                     }
                 }
             }
@@ -452,6 +576,31 @@ namespace Stealth.Utils
             }
             intersectedSegments.Insert(segment);
             return true;
+        }
+
+        /// <summary>
+        /// Draw gizmos for the current computation.
+        /// </summary>
+        public void OnDrawGizmos()
+        {
+            if (!ComputationInProgress) return;
+
+            Debug.Log("CV: ODG");
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(sweepLine.Point1, sweepLine.Point2);
+
+            Gizmos.color = Color.blue;
+            foreach (var segment in intersectedSegments)
+            {
+                Gizmos.DrawLine(segment.Point1, segment.Point2);
+            }
+
+            Gizmos.color = Color.green;
+            if (progressMesh != null)
+            {
+                Gizmos.DrawMesh(progressMesh);
+            }
         }
     }
 }
