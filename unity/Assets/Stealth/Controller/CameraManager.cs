@@ -62,7 +62,7 @@ namespace Stealth
 
         private void OnCameraDisabledChanged(GalleryCamera cam)
         {
-            cameraText.text = $"Deactivated Cameras: {DisabledCamerasAmount}";
+            cameraText.text = $"Deactivated Cameras: {DisabledCamerasAmount} / {_disabledLimit}";
         }
 
         [MenuItem("Game/Update vision all cameras _F10")]
