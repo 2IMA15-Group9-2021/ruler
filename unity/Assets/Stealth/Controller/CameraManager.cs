@@ -65,7 +65,7 @@ namespace Stealth
             cameraText.text = $"Deactivated Cameras: {DisabledCamerasAmount} / {_disabledLimit}";
         }
 
-        [MenuItem("Game/Update vision all cameras _F10")]
+        //[MenuItem("Game/Update vision all cameras _F10")]
         public static void UpdateVisionCameras()
         {
             if (!Application.isPlaying)

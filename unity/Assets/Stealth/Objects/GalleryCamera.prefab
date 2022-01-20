@@ -49,7 +49,6 @@ MonoBehaviour:
   gizmoColor: {r: 0.10307205, g: 1, b: 0, a: 0.49803922}
   gizmoLength: 8.17
   _fieldOfViewDegrees: 141.48
-  visionMeshFilter: {fileID: 0}
 --- !u!61 &-7400601059368485422
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -74,7 +73,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.5, y: 1}
   m_EdgeRadius: 0
 --- !u!212 &7816917389595774301
 SpriteRenderer:
