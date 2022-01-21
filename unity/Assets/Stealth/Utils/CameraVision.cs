@@ -109,11 +109,25 @@ namespace Stealth.Utils
                 {
                     return 1;
                 }
+                // A is on the left/right of B and the viewpoint is
+                // on the left/right of A, thus A is between the viewpoint
+                // and B
+                if (a1RightOfB == a2RightOfB && vRightOfA == a1RightOfB)
+                {
+                    return -1;
+                }
                 // If A is sandwiched between the viewpoint and B
                 // then B is behind A from the perspective of the viewpoint
                 if (b1RightOfA == b2RightOfA && b1RightOfA != vRightOfA)
                 {
                     return -1;
+                }
+                // A is on the left/right of B and the viewpoint is
+                // on the left/right of A, thus A is between the viewpoint
+                // and B
+                if (b1RightOfA == b2RightOfA && vRightOfB == b1RightOfA)
+                {
+                    return 1;
                 }
 
                 return 1;
@@ -291,9 +305,11 @@ namespace Stealth.Utils
                 Vector2? intersection = segments.Intersect(line);
                 if (intersection.HasValue)
                 {
+                    Vector2 x = line.Point1 - intersection.Value;
+                    Vector2 y = line.Point1 - line.Point2;
                     // The sweep line extends from the viewpoint to infinity
                     // We don't want intersections that are behind the viewpoint
-                    bool correctDirection = Vector2.Dot(right, intersection.Value - pos) > 0;
+                    bool correctDirection = Vector2.Dot(x, y) > 0;
                     if (correctDirection)
                     {
                         intersections.Add(Tuple.Create(segments, intersection.Value));
@@ -360,7 +376,7 @@ namespace Stealth.Utils
                         // Find the other endpoint
                         Vector2 other = (point == segment.Point1) ? segment.Point2 : segment.Point1;
                         // Calculate difference in angle
-                        float angleDiff = GetCounterClockwiseAngle(viewpoint, sweepLine, other, true) - GetCounterClockwiseAngle(viewpoint, sweepLine, point, true);
+                        float angleDiff = Vector2.SignedAngle(point - viewpoint, other - viewpoint);
                         if (angleDiff > 0)
                         {
                             insertedSegment = true;
