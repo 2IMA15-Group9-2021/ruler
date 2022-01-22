@@ -42,6 +42,7 @@ namespace Stealth
         private void Awake()
         {
             cameras = FindObjectsOfType<GalleryCamera>();
+            cameraText.text = $"Deactivated Cameras: {DisabledCamerasAmount} / {_disabledLimit}";
         }
 
         private void OnEnable()

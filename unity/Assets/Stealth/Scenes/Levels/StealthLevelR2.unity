@@ -205,7 +205,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Level 1
+  m_Text: Level 4
 --- !u!222 &176379876
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2127,7 +2127,7 @@ MonoBehaviour:
   levelResetDelay: 1
   advanceButton: {fileID: 1052460843}
   playerController: {fileID: 46575671}
-  nextSceneName: stealthVictory
+  nextSceneName: StealthLevelL1
 --- !u!4 &1856615513
 Transform:
   m_ObjectHideFlags: 0

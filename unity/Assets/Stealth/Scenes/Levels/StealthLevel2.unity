@@ -205,7 +205,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Level 1
+  m_Text: Level 2
 --- !u!222 &176379876
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -850,12 +850,12 @@ PrefabInstance:
     - target: {fileID: 1883093993927041750, guid: e4f9687c39d5be646849e286ef18577d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.29
+      value: -7.23
       objectReference: {fileID: 0}
     - target: {fileID: 1883093993927041750, guid: e4f9687c39d5be646849e286ef18577d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 9.13
+      value: 9.04
       objectReference: {fileID: 0}
     - target: {fileID: 1883093993927041750, guid: e4f9687c39d5be646849e286ef18577d,
         type: 3}
@@ -1097,12 +1097,12 @@ PrefabInstance:
     - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.12
+      value: -3.14
       objectReference: {fileID: 0}
     - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 11.58
+      value: 10.85
       objectReference: {fileID: 0}
     - target: {fileID: 1567076570996911808, guid: 1c8e40e7595167345b67488ba9221f96,
         type: 3}
@@ -1449,12 +1449,12 @@ EdgeCollider2D:
   m_Offset: {x: 0, y: 0}
   m_EdgeRadius: 0
   m_Points:
-  - {x: 6.0953145, y: -14.140699}
+  - {x: 6.0953155, y: -13.907077}
   - {x: 11.931988, y: 4.6655555}
-  - {x: -3.0898862, y: 13.194139}
+  - {x: -3.1478653, y: 12.004875}
   - {x: -18.56419, y: 3.5787945}
-  - {x: -13.856831, y: -14.1328}
-  - {x: 6.0953145, y: -14.140699}
+  - {x: -13.80778, y: -13.844047}
+  - {x: 6.0953155, y: -13.907077}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
@@ -1472,11 +1472,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outsideVertices:
-  - {x: 6.0953145, y: -14.140699}
+  - {x: 6.0953155, y: -13.907077}
   - {x: 11.931988, y: 4.6655555}
-  - {x: -3.0898862, y: 13.194139}
+  - {x: -3.1478653, y: 12.004875}
   - {x: -18.56419, y: 3.5787945}
-  - {x: -13.856831, y: -14.1328}
+  - {x: -13.80778, y: -13.844047}
   holesBoundary:
   - Vertices:
     - {x: -14.50539, y: -6.3398705}
@@ -1498,10 +1498,10 @@ MonoBehaviour:
     - {x: 2.620569, y: -10.229202}
     - {x: 4.4385643, y: -7.034615}
   - Vertices:
-    - {x: -11.110683, y: 8.112656}
-    - {x: -9.027427, y: 5.5881615}
-    - {x: -10.012251, y: 8.007925}
-    - {x: -8.98914, y: 9.408469}
+    - {x: -10.814695, y: 7.8106446}
+    - {x: -8.86124, y: 5.373038}
+    - {x: -9.87882, y: 7.5750833}
+    - {x: -8.792755, y: 8.903916}
   holePrefab: {fileID: 3409390130865463969, guid: 2312b2d98533e384b8b5842673f98595,
     type: 3}
   debugSettings:

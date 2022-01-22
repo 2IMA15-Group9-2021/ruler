@@ -140,4 +140,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Stealth/Scenes/Levels/StealthLevelR2.unity
     guid: 2385414ff01aba0469bd65f2e6f7a5b0
+  - enabled: 1
+    path: Assets/Stealth/Scenes/Levels/StealthLevelL1.unity
+    guid: 84974cdadcefaf844afebb53a3369686
   m_configObjects: {}

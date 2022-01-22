@@ -277,15 +277,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 11497240, guid: 47375d1ad9de78947b5dddba6bf6a125, type: 3}
       propertyPath: m_Text
-      value: 'In this game, you will be tasked to find the shortest wall that encloses
-        all the soldiers. This is the same as finding the convex hull around the
-        points.
-
-
-        In mathematics, the convex hull of a set X of points in
-        the Euclidean plane is the smallest convex set that contains X. For instance,
-        when X is a bounded subset of the plane, the convex hull may be visualized
-        as the shape enclosed by a rubber band stretched around X.'
+      value: The player can move their character, a small square, using the arrow
+        keys. Their objective is to reach the goal, a small yellow area, without
+        being observed by any of the cameras. The player is allowed to disable a
+        certain amount of cameras at a time, varying by level, by clicking on them
+        with the mouse pointer.
       objectReference: {fileID: 0}
     - target: {fileID: 22485368, guid: 47375d1ad9de78947b5dddba6bf6a125, type: 3}
       propertyPath: m_Pivot.x
